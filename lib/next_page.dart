@@ -1,30 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NextPage extends StatelessWidget {
   NextPage(this.value);
   final bool value;
 
   _showAlertDialog(BuildContext context) {
-    return showDialog<void>(
+    return showBarModalBottomSheet(
+      barrierColor: Colors.black.withOpacity(0.4),
       context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('title'),
-          content: Text('Description'),
-          actions: <Widget>[
-            TextButton(
-              child: Text('CANCEL'),
-              onPressed: () => {Navigator.pop(context)},
-            ),
-            TextButton(
-              child: Text('OK'),
-              onPressed: () => {Navigator.pop(context)},
-            ),
+      builder: (context) => Container(
+        alignment: Alignment.center,
+        height: MediaQuery.of(context).size.height / 2,
+        margin: EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            const Text('BottomSheet'),
+            ElevatedButton(
+              child: const Text('Close BottomSheet'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            )
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
