@@ -1,15 +1,20 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'next_page.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({
+    Key? key,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,13 +22,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'google_ml_kit'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
 
   @override
@@ -31,30 +36,39 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  File _image;
+  File? _image;
   final picker = ImagePicker();
 
-  Future getImage() async {
-    final pickedFile = await picker.getImage(source: ImageSource.camera);
+  Future<void> getImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
 
     setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
       } else {
+        // ignore: avoid_print
         print('No image selected.');
       }
     });
   }
 
-  Future getAlbum() async {
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+  Future<void> getAlbum() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
       } else {
+        // ignore: avoid_print
         print('No image selected.');
       }
+    });
+  }
+
+  Future<void> launchCamera() async {
+    final file = await picker.pickImage(source: ImageSource.camera);
+    setState(() {
+      _image = File(file?.path ?? '');
     });
   }
 
@@ -62,17 +76,19 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flutter dialog'),
+        title: const Text('Flutter dialog'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _image == null ? Text('No image selected.') : Image.file(_image),
+            _image == null
+                ? const Text('No image selected.')
+                : Image.file(_image!),
             ElevatedButton(
-              child: Text('Album'),
-              onPressed: getAlbum,
+              onPressed: launchCamera,
+              child: const Text('Camera'),
               // () {
               //   Navigator.push(
               //     context,
@@ -80,14 +96,35 @@ class _MyHomePageState extends State<MyHomePage> {
               //   );
               // },
             ),
+            if (_image != null)
+              TextButton(
+                onPressed: () async {
+                  const options = FaceDetectorOptions(
+                    mode: FaceDetectorMode.accurate,
+                    enableLandmarks: true,
+                    enableClassification: true,
+                  );
+                  final image = InputImage.fromFile(_image!);
+                  final detector = GoogleMlKit.vision.faceDetector(options);
+                  final faces = await detector.processImage(image);
+                  // ignore: avoid_print
+                  print(faces);
+                  for (final face in faces) {
+                    // ignore: avoid_print
+                    print(face.boundingBox);
+                  }
+                },
+                child: const Text('顔認識する'),
+              ),
             ElevatedButton(
-              child: Text('遷移後dialog開く'),
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                await Navigator.push<Widget>(
                   context,
-                  MaterialPageRoute(builder: (context) => NextPage(true)),
+                  MaterialPageRoute<Widget>(
+                      builder: (context) => const NextPage(value: true)),
                 );
               },
+              child: const Text('遷移後dialog開く'),
             )
           ],
         ),
@@ -95,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: getImage,
         tooltip: 'Pick Image',
-        child: Icon(Icons.add_a_photo),
+        child: const Icon(Icons.add_a_photo),
       ),
     );
   }

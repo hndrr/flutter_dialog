@@ -4,26 +4,27 @@ import 'package:flutter/widgets.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class NextPage extends StatelessWidget {
-  NextPage(this.value);
+  // ignore: avoid_positional_boolean_parameters
+  const NextPage({Key? key, required this.value}) : super(key: key);
   final bool value;
 
-  _showAlertDialog(BuildContext context) {
-    return showBarModalBottomSheet(
+  Future<dynamic> _showAlertDialog(BuildContext context) {
+    return showBarModalBottomSheet<Widget>(
       barrierColor: Colors.black.withOpacity(0.4),
       context: context,
       builder: (context) => Container(
         alignment: Alignment.center,
         height: MediaQuery.of(context).size.height / 2,
-        margin: EdgeInsets.symmetric(horizontal: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 10),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             const Text('BottomSheet'),
             ElevatedButton(
-              child: const Text('Close BottomSheet'),
               onPressed: () {
                 Navigator.pop(context);
               },
+              child: const Text('Close BottomSheet'),
             )
           ],
         ),
@@ -33,19 +34,22 @@ class NextPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance
+    WidgetsBinding.instance!
         .addPostFrameCallback((_) => value ? _showAlertDialog(context) : null);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flutter dialog'),
+        title: const Text('Flutter dialog'),
       ),
       body: Container(
         alignment: Alignment.center,
         color: Colors.grey[100],
         child: Text(
           value.toString(),
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
         ),
       ),
     );
