@@ -108,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   final detector = GoogleMlKit.vision.faceDetector(options);
                   final faces = await detector.processImage(image);
                   // ignore: avoid_print
-                  print(faces);
+                  print('faces ${faces.length}');
                   for (final face in faces) {
                     // ignore: avoid_print
                     print(face.boundingBox);
