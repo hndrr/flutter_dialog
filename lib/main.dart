@@ -37,6 +37,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   File? _image;
+  List<Face>? faces;
+  List<Map<String, int>> faceMaps = [];
   final picker = ImagePicker();
 
   Future<void> getImage() async {
@@ -74,6 +76,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // for (final face in faces!) {
+    //   final x = face.boundingBox.left.toInt();
+    //   final y = face.boundingBox.top.toInt();
+    //   final w = face.boundingBox.width.toInt();
+    //   final h = face.boundingBox.height.toInt();
+    //   final thisMap = <String, int>{
+    //     'x': x,
+    //     'y': y,
+    //     'w': w,
+    //     'h': h,
+    //   };
+    //   faceMaps.add(thisMap);
+    // }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Flutter dialog'),
@@ -85,7 +101,34 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             _image == null
                 ? const Text('No image selected.')
-                : Image.file(_image!),
+                : Stack(children: [
+                    Image.file(_image!),
+                    // if (faceMaps != null)
+                    //   Positioned(
+                    //     left: faceMaps[0]['x']!.toDouble(),
+                    //     top: faceMaps[0]['y']!.toDouble(),
+                    //     child: Container(
+                    //       width: faceMaps[0]['w']!.toDouble(),
+                    //       height: faceMaps[0]['h']!.toDouble(),
+                    //       decoration: BoxDecoration(
+                    //         border: Border.all(
+                    //           width: 2,
+                    //           color: Colors.blue,
+                    //         ),
+                    //       ),
+                    //       child: Align(
+                    //         alignment: Alignment.topLeft,
+                    //         child: Container(
+                    //           color: Colors.blue,
+                    //           child: const Text(
+                    //             'hourse -71%',
+                    //             style: TextStyle(color: Colors.white),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                  ]),
             ElevatedButton(
               onPressed: launchCamera,
               child: const Text('Camera'),
@@ -106,13 +149,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                   final image = InputImage.fromFile(_image!);
                   final detector = GoogleMlKit.vision.faceDetector(options);
-                  final faces = await detector.processImage(image);
-                  // ignore: avoid_print
-                  print('faces ${faces.length}');
-                  for (final face in faces) {
-                    // ignore: avoid_print
-                    print(face.boundingBox);
-                  }
+
+                  // print('faces ${faces!.length}');
+                  //
+
+                  setState(() async {
+                    faces = await detector.processImage(image);
+                  });
+
+                  // });
                 },
                 child: const Text('顔認識する'),
               ),
